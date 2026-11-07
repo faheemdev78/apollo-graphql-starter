@@ -1,0 +1,47 @@
+scalar DateTime
+
+"""
+Application role. Higher roles include the permissions of the roles below them.
+"""
+enum Role {
+  VIEWER
+  MEMBER
+  ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+"""
+Requires a valid bearer token. `requires` is the minimum global role.
+Resource ownership is enforced again inside the domain service.
+"""
+directive @auth(requires: Role = MEMBER) on FIELD_DEFINITION
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input TaskFilter {
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeId: ID
+  search: String
+}
+
+type Query {
+  "Liveness probe. Public and unauthenticated."
+  health: String!
+}

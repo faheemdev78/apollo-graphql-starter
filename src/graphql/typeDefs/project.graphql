@@ -1,0 +1,58 @@
+type Project {
+  id: ID!
+  name: String!
+  key: String!
+  description: String
+  owner: User!
+  members: [ProjectMember!]!
+  tasks(first: Int, after: String, filter: TaskFilter): TaskConnection!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type ProjectMember {
+  user: User!
+  role: Role!
+  joinedAt: DateTime!
+}
+
+type ProjectEdge {
+  cursor: String!
+  node: Project!
+}
+
+type ProjectConnection {
+  edges: [ProjectEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input CreateProjectInput {
+  name: String!
+  key: String!
+  description: String
+}
+
+input UpdateProjectInput {
+  name: String
+  description: String
+}
+
+input AddProjectMemberInput {
+  projectId: ID!
+  userId: ID!
+  role: Role!
+}
+
+extend type Query {
+  project(id: ID!): Project @auth(requires: VIEWER)
+  projects(first: Int, after: String, search: String): ProjectConnection! @auth(requires: VIEWER)
+}
+
+extend type Mutation {
+  createProject(input: CreateProjectInput!): Project! @auth
+  updateProject(id: ID!, input: UpdateProjectInput!): Project! @auth
+  deleteProject(id: ID!): Boolean! @auth
+  addProjectMember(input: AddProjectMemberInput!): Project! @auth
+  removeProjectMember(projectId: ID!, userId: ID!): Project! @auth
+}

@@ -1,0 +1,63 @@
+type Task {
+  id: ID!
+  title: String!
+  description: String
+  status: TaskStatus!
+  priority: TaskPriority!
+  project: Project!
+  assignee: User
+  reporter: User!
+  dueDate: DateTime
+  labels: [String!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type TaskEdge {
+  cursor: String!
+  node: Task!
+}
+
+type TaskConnection {
+  edges: [TaskEdge!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+input CreateTaskInput {
+  projectId: ID!
+  title: String!
+  description: String
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeId: ID
+  dueDate: DateTime
+  labels: [String!]
+}
+
+input UpdateTaskInput {
+  title: String
+  description: String
+  status: TaskStatus
+  priority: TaskPriority
+  assigneeId: ID
+  dueDate: DateTime
+  labels: [String!]
+}
+
+extend type Query {
+  task(id: ID!): Task @auth(requires: VIEWER)
+  tasks(projectId: ID, first: Int, after: String, filter: TaskFilter): TaskConnection!
+    @auth(requires: VIEWER)
+}
+
+extend type Mutation {
+  createTask(input: CreateTaskInput!): Task! @auth
+  updateTask(id: ID!, input: UpdateTaskInput!): Task! @auth
+  deleteTask(id: ID!): Boolean! @auth
+}
+
+type Subscription {
+  "Emitted after a task is created or updated in the given project."
+  taskUpdated(projectId: ID!): Task!
+}
